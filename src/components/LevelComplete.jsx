@@ -17,6 +17,8 @@ const LEVEL_MSGS = [
 export default function LevelComplete({ level, stats, onNext }) {
   const isLastLevel = level >= LEVELS.length - 1
   const msg = LEVEL_MSGS[level] || "Great job! 🎉"
+  const isNewRecord = stats?.isNewRecord
+  const bestTime = stats?.bestTime
 
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-label="Level complete">
@@ -26,10 +28,24 @@ export default function LevelComplete({ level, stats, onNext }) {
         </div>
         <h2 className="overlay__title">{msg}</h2>
         <p className="overlay__sub">Level {level + 1} complete!</p>
+
+        {isNewRecord && (
+          <div className="new-record" role="status" aria-live="polite">
+            🏆 NEW BEST TIME! 🏆
+          </div>
+        )}
+
         <div className="overlay__stats">
           <span>⏱ {formatTime(stats?.seconds ?? 0)}</span>
           <span>👆 {stats?.moves ?? 0} moves</span>
         </div>
+
+        {bestTime !== undefined && (
+          <div className="overlay__best">
+            🥇 Best time: {formatTime(bestTime)}
+          </div>
+        )}
+
         <button className="btn btn--primary" onClick={onNext}>
           {isLastLevel ? '🎉 Finish!' : '➡️ Next Level!'}
         </button>

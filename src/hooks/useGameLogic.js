@@ -4,6 +4,20 @@ import { playFlip, playMatch, playMiss, playFanfare, playVictory } from '../util
 
 // gamePhase: 'start' | 'playing' | 'levelComplete' | 'gameWon'
 
+function loadBestTimes() {
+  try {
+    return JSON.parse(localStorage.getItem('easterFlipBestTimes') || '{}')
+  } catch {
+    return {}
+  }
+}
+
+function saveBestTime(levelIndex, seconds) {
+  const best = loadBestTimes()
+  best[levelIndex] = seconds
+  localStorage.setItem('easterFlipBestTimes', JSON.stringify(best))
+}
+
 export function useGameLogic() {
   const [level, setLevel] = useState(0)          // 0-indexed
   const [cards, setCards] = useState([])
@@ -12,7 +26,8 @@ export function useGameLogic() {
   const [moves, setMoves] = useState(0)
   const [seconds, setSeconds] = useState(0)
   const [gamePhase, setGamePhase] = useState('start')
-  const [levelStats, setLevelStats] = useState(null)  // { moves, seconds } for the completed level
+  const [levelStats, setLevelStats] = useState(null)  // { moves, seconds, isNewRecord, bestTime }
+  const [bestTimes, setBestTimes] = useState(loadBestTimes)
 
   const checking = useRef(false)   // block clicks while evaluating a pair
   const timerRef = useRef(null)
@@ -86,7 +101,19 @@ export function useGameLogic() {
           const totalPairs = LEVELS[level].pairs
           if (newMatched.length === totalPairs * 2) {
             setTimeout(() => {
-              setLevelStats({ moves: moves + 1, seconds })
+              const finishSeconds = seconds
+              const prevBest = loadBestTimes()[level]
+              const isNewRecord = prevBest === undefined || finishSeconds < prevBest
+              if (isNewRecord) {
+                saveBestTime(level, finishSeconds)
+                setBestTimes((bt) => ({ ...bt, [level]: finishSeconds }))
+              }
+              setLevelStats({
+                moves: moves + 1,
+                seconds: finishSeconds,
+                isNewRecord,
+                bestTime: isNewRecord ? finishSeconds : prevBest,
+              })
               setGamePhase('levelComplete')
               playFanfare()
             }, 600)
@@ -113,6 +140,7 @@ export function useGameLogic() {
     seconds,
     gamePhase,
     levelStats,
+    bestTimes,
     handleCardClick,
     startGame,
     nextLevel,

@@ -37,6 +37,7 @@ export default function App() {
     seconds,
     gamePhase,
     levelStats,
+    bestTimes,
     handleCardClick,
     startGame,
     nextLevel,
@@ -63,6 +64,7 @@ export default function App() {
             moves={moves}
             seconds={seconds}
             matched={matched}
+            bestTime={bestTimes[level]}
           />
           <Board
             level={level}

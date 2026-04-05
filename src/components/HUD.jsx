@@ -6,7 +6,7 @@ function formatTime(secs) {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-export default function HUD({ level, moves, seconds, matched }) {
+export default function HUD({ level, moves, seconds, matched, bestTime }) {
   const totalPairs = LEVELS[level].pairs
   const foundPairs = matched.length / 2
 
@@ -18,6 +18,11 @@ export default function HUD({ level, moves, seconds, matched }) {
       <div className="hud__stat">
         ⏱ {formatTime(seconds)}
       </div>
+      {bestTime !== undefined && (
+        <div className="hud__stat hud__best">
+          🏆 {formatTime(bestTime)}
+        </div>
+      )}
       <div className="hud__stat">
         👆 {moves} moves
       </div>
