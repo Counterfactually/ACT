@@ -5,7 +5,7 @@ export default defineConfig(({ command }) => ({
   plugins: [react()],
   base: command === 'build' ? '/ACT/' : '/',
   server: {
-    port: 5174,
+    port: 5173,
     host: true,
   },
 }))
