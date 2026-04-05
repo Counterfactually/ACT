@@ -1,135 +1,121 @@
 // ============================================================
-//  WinScene — Level complete screen
+//  WinScene — Level complete  (iPad-mini safe layout)
+//  All content kept within y 0–460 to avoid canvas clipping
 // ============================================================
 
 class WinScene extends Phaser.Scene {
   constructor() { super('WinScene'); }
 
   init(data) {
-    this._level     = data.level     || 1;
-    this._score     = data.score     || 0;
-    this._timeBonus = data.timeBonus || 0;
-    this._health    = data.health    || PLAYER_CFG.MAX_HEALTH;
+    this._level      = data.level      || 1;
+    this._score      = data.score      || 0;
+    this._timeBonus  = data.timeBonus  || 0;
+    this._health     = data.health     || PLAYER_CFG.MAX_HEALTH;
     this._totalScore = this._score + this._timeBonus;
   }
 
   create() {
-    const isLastLevel = this._level >= LEVELS.length;
-    const bg = isLastLevel ? 0x1a3300 : 0x0a2244;
-    this.add.rectangle(GAME.WIDTH / 2, GAME.HEIGHT / 2, GAME.WIDTH, GAME.HEIGHT, bg);
+    const isLast = this._level >= LEVELS.length;
+    this.add.rectangle(GAME.WIDTH / 2, GAME.HEIGHT / 2, GAME.WIDTH, GAME.HEIGHT,
+      isLast ? 0x1a3300 : 0x0a2244);
 
-    // Stars burst
-    const starEmitter = this.add.particles(GAME.WIDTH / 2, GAME.HEIGHT / 2, 'star', {
-      speed: { min: 100, max: 350 },
-      scale: { start: 1, end: 0 },
-      lifespan: 1200,
-      quantity: 30,
-      emitting: false,
+    // Star burst
+    const em = this.add.particles(GAME.WIDTH / 2, GAME.HEIGHT / 2, 'star', {
+      speed: { min: 100, max: 320 }, scale: { start: 1, end: 0 },
+      lifespan: 1200, quantity: 0, emitting: false,
     });
-    starEmitter.explode(30, GAME.WIDTH / 2, GAME.HEIGHT / 2);
+    em.explode(28, GAME.WIDTH / 2, GAME.HEIGHT / 2);
 
-    // Title
-    const title = isLastLevel ? '🏆 YOU WIN! 🏆' : `✅ LEVEL ${this._level} COMPLETE!`;
-    this.add.text(GAME.WIDTH / 2, 90, title, {
-      fontSize: isLastLevel ? '48px' : '40px',
-      fill: '#FFD700',
-      stroke: '#000000',
-      strokeThickness: 8,
-      fontFamily: 'Arial Black, Arial',
-    }).setOrigin(0.5);
+    const hdr = { fontSize: '22px', fill: '#ffffff', stroke: '#000', strokeThickness: 3, fontFamily: 'Arial Black, Arial' };
 
-    if (isLastLevel) {
-      this.add.text(GAME.WIDTH / 2, 150, 'The Chicken Nugget Hero saved the day!', {
-        fontSize: '20px',
-        fill: '#ffffff',
-        fontFamily: 'Arial, sans-serif',
-      }).setOrigin(0.5);
+    // ── Title ─────────────────────────────────────────────────
+    this.add.text(GAME.WIDTH / 2, 44,
+      isLast ? '🏆 YOU WIN! 🏆' : `✅ LEVEL ${this._level} COMPLETE!`,
+      { fontSize: isLast ? '44px' : '36px', fill: '#FFD700',
+        stroke: '#000', strokeThickness: 8, fontFamily: 'Arial Black, Arial' }
+    ).setOrigin(0.5);
+
+    if (isLast) {
+      this.add.text(GAME.WIDTH / 2, 96, 'The Chicken Nugget Hero saved the day!',
+        { fontSize: '17px', fill: '#ffffff', fontFamily: 'Arial, sans-serif' }
+      ).setOrigin(0.5);
     }
 
-    // Score breakdown
-    let y = isLastLevel ? 200 : 170;
-    const lineStyle = {
-      fontSize: '22px',
-      fill: '#ffffff',
-      stroke: '#000',
-      strokeThickness: 3,
-      fontFamily: 'Arial Black, Arial',
-    };
+    // ── Score breakdown ───────────────────────────────────────
+    const scoreY = isLast ? 126 : 106;
 
-    this.add.text(GAME.WIDTH / 2, y, `Level Score:    ${this._score.toLocaleString()}`, lineStyle).setOrigin(0.5);
-    y += 40;
-    this.add.text(GAME.WIDTH / 2, y, `Time Bonus:    +${this._timeBonus.toLocaleString()}`, {
-      ...lineStyle, fill: '#88FF88',
+    this.add.text(GAME.WIDTH / 2, scoreY,
+      `Level Score:   ${this._score.toLocaleString()}`, hdr).setOrigin(0.5);
+
+    this.add.text(GAME.WIDTH / 2, scoreY + 34,
+      `Time Bonus:   +${this._timeBonus.toLocaleString()}`,
+      { ...hdr, fill: '#88FF88' }).setOrigin(0.5);
+
+    const lineY = scoreY + 70;
+    const lineG = this.add.graphics();
+    lineG.lineStyle(2, 0xffffff, 0.4);
+    lineG.lineBetween(GAME.WIDTH / 2 - 200, lineY, GAME.WIDTH / 2 + 200, lineY);
+
+    this.add.text(GAME.WIDTH / 2, lineY + 14,
+      `TOTAL:   ${this._totalScore.toLocaleString()}`,
+      { ...hdr, fill: '#FFD700', fontSize: '26px' }).setOrigin(0.5);
+
+    // ── Hearts ────────────────────────────────────────────────
+    const heartsY = lineY + 54;
+    this.add.text(GAME.WIDTH / 2, heartsY, 'Health left:', {
+      fontSize: '15px', fill: '#ffffff', fontFamily: 'Arial, sans-serif',
     }).setOrigin(0.5);
-    y += 40;
 
-    // Separator line
-    const line = this.add.graphics();
-    line.lineStyle(2, 0xffffff, 0.5);
-    line.lineBetween(GAME.WIDTH / 2 - 180, y, GAME.WIDTH / 2 + 180, y);
-    y += 16;
-
-    this.add.text(GAME.WIDTH / 2, y, `TOTAL:    ${this._totalScore.toLocaleString()}`, {
-      ...lineStyle, fill: '#FFD700', fontSize: '28px',
-    }).setOrigin(0.5);
-    y += 55;
-
-    // Health remaining hearts
-    this.add.text(GAME.WIDTH / 2, y, 'Health remaining:', {
-      fontSize: '16px', fill: '#ffffff', fontFamily: 'Arial, sans-serif',
-    }).setOrigin(0.5);
-    y += 28;
     for (let i = 0; i < PLAYER_CFG.MAX_HEALTH; i++) {
-      this.add.image(GAME.WIDTH / 2 - ((PLAYER_CFG.MAX_HEALTH - 1) * 17) + i * 34, y,
+      this.add.image(
+        GAME.WIDTH / 2 - ((PLAYER_CFG.MAX_HEALTH - 1) * 16) + i * 32,
+        heartsY + 26,
         i < this._health ? 'heart' : 'heart_empty'
-      ).setScale(0.7);
+      ).setScale(0.65);
     }
 
-    y += 50;
+    // ── Buttons — stacked, well within canvas ─────────────────
+    const btn1Y = heartsY + 70;
+    const btn2Y = btn1Y + 76;
 
-    // Next level / main menu buttons
-    if (isLastLevel) {
-      this._makeButton(GAME.WIDTH / 2 - 130, y + 10, '🔄 PLAY AGAIN', 0x226622, () => {
+    if (isLast) {
+      this._makeButton(GAME.WIDTH / 2, btn1Y, '🔄  PLAY AGAIN', 0x226622, () => {
         this.scene.start('GameScene', { level: 1, score: 0 });
       });
-      this._makeButton(GAME.WIDTH / 2 + 130, y + 10, '🏆 SCORES', 0x884400, () => {
-        this.scene.start('LeaderboardScene', {
-          score: this._totalScore, fromWin: true,
-        });
+      this._makeButton(GAME.WIDTH / 2, btn2Y, '🏆  VIEW SCORES', 0x884400, () => {
+        this.scene.start('LeaderboardScene', { score: this._totalScore, fromWin: true });
       });
     } else {
-      this._makeButton(GAME.WIDTH / 2 - 130, y + 10, '▶ NEXT LEVEL', 0x226622, () => {
+      this._makeButton(GAME.WIDTH / 2, btn1Y, '▶  NEXT LEVEL', 0x226622, () => {
         this.scene.start('GameScene', {
           level: this._level + 1,
           score: this._totalScore,
           health: this._health,
         });
       });
-      this._makeButton(GAME.WIDTH / 2 + 130, y + 10, '🏠 MENU', 0x884400, () => {
+      this._makeButton(GAME.WIDTH / 2, btn2Y, '🏠  MAIN MENU', 0x664400, () => {
         this.scene.start('MenuScene');
       });
     }
   }
 
   _makeButton(x, y, label, color, callback) {
-    const w = 240, h = 64;
+    const w = 340, h = 66;
     const bg = this.add.graphics();
     bg.fillStyle(color, 1);
-    bg.fillRoundedRect(x - w / 2, y - h / 2, w, h, 14);
-    bg.lineStyle(3, 0xffffff, 0.6);
-    bg.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 14);
+    bg.fillRoundedRect(x - w / 2, y - h / 2, w, h, 16);
+    bg.lineStyle(3, 0xffffff, 0.55);
+    bg.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 16);
 
     const txt = this.add.text(x, y, label, {
-      fontSize: '20px',
-      fill: '#ffffff',
-      stroke: '#000',
-      strokeThickness: 4,
+      fontSize: '22px', fill: '#ffffff',
+      stroke: '#000', strokeThickness: 4,
       fontFamily: 'Arial Black, Arial',
     }).setOrigin(0.5);
 
     const zone = this.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
     zone.on('pointerdown', callback);
-    zone.on('pointerover', () => this.tweens.add({ targets: [bg, txt], scaleX: 1.05, scaleY: 1.05, duration: 80 }));
-    zone.on('pointerout',  () => this.tweens.add({ targets: [bg, txt], scaleX: 1, scaleY: 1, duration: 80 }));
+    zone.on('pointerover', () => this.tweens.add({ targets: txt, scaleX: 1.05, scaleY: 1.05, duration: 80 }));
+    zone.on('pointerout',  () => this.tweens.add({ targets: txt, scaleX: 1,    scaleY: 1,    duration: 80 }));
   }
 }
