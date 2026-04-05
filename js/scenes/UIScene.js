@@ -46,14 +46,14 @@ class UIScene extends Phaser.Scene {
       fontFamily: 'Arial, sans-serif',
     }).setOrigin(0.5, 0).setDepth(100).setScrollFactor(0);
 
-    // ── Power-up shots remaining — placed above touch buttons ───
-    this._shotsTxt = this.add.text(GAME.WIDTH / 2, GAME.HEIGHT - 110, '', {
-      fontSize: '22px',
+    // ── Power-up shots remaining — top-right, below timer ───────
+    this._shotsTxt = this.add.text(GAME.WIDTH - 10, 42, '', {
+      fontSize: '20px',
       fill: '#FF8800',
       stroke: '#000000',
       strokeThickness: 4,
       fontFamily: 'Arial Black, Arial',
-    }).setOrigin(0.5).setDepth(100).setScrollFactor(0);
+    }).setOrigin(1, 0).setDepth(100).setScrollFactor(0);
 
     // ── Touch controls ───────────────────────────────────────
     this._buildTouchControls();

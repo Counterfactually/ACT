@@ -56,6 +56,7 @@ class BootScene extends Phaser.Scene {
     this._drawCelery();
     this._drawSpinach();
     this._drawCabbage();
+    this._drawCauliflower();
   }
 
   _drawCarrot() {
@@ -219,6 +220,51 @@ class BootScene extends Phaser.Scene {
     g.fillRect(15, 30, 3, 3);
     g.fillRect(30, 30, 3, 3);
     g.generateTexture('cabbage', 48, 48);
+    g.destroy();
+  }
+
+  _drawCauliflower() {
+    const g = this.make.graphics({ x: 0, y: 0, add: false });
+    // Green leaves base
+    g.fillStyle(0x44aa33, 1);
+    g.fillEllipse(24, 38, 50, 22);
+    g.fillEllipse(10, 30, 22, 18);
+    g.fillEllipse(38, 30, 22, 18);
+    // Creamy white curd head
+    g.fillStyle(0xF5F0DC, 1);
+    g.fillEllipse(24, 22, 44, 36);
+    // Curd bumps — overlapping circles for the floret texture
+    g.fillStyle(0xFFFAF0, 1);
+    g.fillCircle(13, 20, 8);
+    g.fillCircle(24, 14, 9);
+    g.fillCircle(35, 20, 8);
+    g.fillCircle(18, 26, 7);
+    g.fillCircle(30, 26, 7);
+    // Shading between bumps
+    g.fillStyle(0xDDD8C0, 0.5);
+    g.fillCircle(18, 22, 5);
+    g.fillCircle(29, 22, 5);
+    g.fillCircle(24, 28, 4);
+    // Eyes
+    g.fillStyle(0x1a0a00, 1);
+    g.fillCircle(17, 21, 4);
+    g.fillCircle(31, 21, 4);
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(18, 20, 1.5);
+    g.fillCircle(32, 20, 1.5);
+    // Angry brows
+    g.fillStyle(0x1a0a00, 1);
+    g.fillRect(13, 15, 8, 2.5);
+    g.fillRect(27, 15, 8, 2.5);
+    // Frown
+    g.fillRect(16, 28, 16, 3);
+    g.fillRect(16, 26, 3, 3);
+    g.fillRect(29, 26, 3, 3);
+    // Small wings to hint it can fly
+    g.fillStyle(0xcceecc, 0.8);
+    g.fillEllipse(4,  20, 14, 8);
+    g.fillEllipse(44, 20, 14, 8);
+    g.generateTexture('cauliflower', 48, 48);
     g.destroy();
   }
 

@@ -40,7 +40,7 @@ const LEVELS = [
     scrollSpeed: 0, // camera follows player, background parallax speed
     veggieSpeed: 90,
     condimentSpeed: 60,
-    veggieTypes: ['carrot', 'broccoli', 'cabbage'],
+    veggieTypes: ['carrot', 'broccoli', 'cabbage', 'cauliflower'],
     condimentTypes: ['ketchup_e'],
     // platforms: {x, y, w} — x/y = top-left corner
     platforms: [
@@ -72,6 +72,11 @@ const LEVELS = [
       { x: 2420, y: GAME.GROUND_Y, type: 'cabbage' },
       { x: 2500, y: GAME.GROUND_Y, type: 'carrot' },
       { x: 2750, y: GAME.GROUND_Y, type: 'cabbage' },
+      // Flying cauliflowers
+      { x: 680,  y: 240, type: 'cauliflower' },
+      { x: 1400, y: 210, type: 'cauliflower' },
+      { x: 2100, y: 255, type: 'cauliflower' },
+      { x: 2850, y: 225, type: 'cauliflower' },
     ],
     condiments: [
       { x: 700,  type: 'ketchup_e' },
@@ -101,7 +106,7 @@ const LEVELS = [
     timeLimit: 90,
     veggieSpeed: 115,
     condimentSpeed: 88,
-    veggieTypes: ['celery', 'spinach', 'carrot', 'cabbage'],
+    veggieTypes: ['celery', 'spinach', 'carrot', 'cabbage', 'cauliflower'],
     condimentTypes: ['ketchup_e', 'mustard_e'],
     platforms: [
       { x: 250, y: 385, w: 110 },
@@ -133,6 +138,12 @@ const LEVELS = [
       { x: 2480, y: GAME.GROUND_Y, type: 'carrot' },
       { x: 2730, y: GAME.GROUND_Y, type: 'celery' },
       { x: 2960, y: GAME.GROUND_Y, type: 'cabbage' },
+      // Flying cauliflowers
+      { x: 760,  y: 220, type: 'cauliflower' },
+      { x: 1350, y: 195, type: 'cauliflower' },
+      { x: 1980, y: 235, type: 'cauliflower' },
+      { x: 2680, y: 210, type: 'cauliflower' },
+      { x: 3020, y: 200, type: 'cauliflower' },
     ],
     condiments: [
       { x: 660,  type: 'ketchup_e' },
@@ -164,7 +175,7 @@ const LEVELS = [
     timeLimit: 90,
     veggieSpeed: 145,
     condimentSpeed: 115,
-    veggieTypes: ['carrot', 'broccoli', 'celery', 'spinach', 'cabbage'],
+    veggieTypes: ['carrot', 'broccoli', 'celery', 'spinach', 'cabbage', 'cauliflower'],
     condimentTypes: ['ketchup_e', 'mustard_e', 'dressing_e'],
     platforms: [
       { x: 230, y: 380, w: 100 },
@@ -198,6 +209,13 @@ const LEVELS = [
       { x: 2590, y: GAME.GROUND_Y, type: 'cabbage' },
       { x: 2710, y: GAME.GROUND_Y, type: 'spinach' },
       { x: 2940, y: GAME.GROUND_Y, type: 'carrot' },
+      // Flying cauliflowers — more in level 3
+      { x: 620,  y: 200, type: 'cauliflower' },
+      { x: 1100, y: 180, type: 'cauliflower' },
+      { x: 1700, y: 215, type: 'cauliflower' },
+      { x: 2300, y: 190, type: 'cauliflower' },
+      { x: 2800, y: 205, type: 'cauliflower' },
+      { x: 3080, y: 185, type: 'cauliflower' },
     ],
     condiments: [
       { x: 620,  type: 'ketchup_e' },
