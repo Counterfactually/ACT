@@ -13,10 +13,11 @@ class Veggie extends Phaser.Physics.Arcade.Sprite {
 
     // Size per veggie type
     const sizes = {
-      carrot:   { w: 34, h: 44 },
+      carrot:   { w: 30, h: 46 },
       broccoli: { w: 38, h: 46 },
       celery:   { w: 42, h: 46 },
       spinach:  { w: 40, h: 40 },
+      cabbage:  { w: 44, h: 44 },
     };
     const sz = sizes[type] || { w: 36, h: 44 };
     this.body.setSize(sz.w, sz.h);
@@ -26,16 +27,7 @@ class Veggie extends Phaser.Physics.Arcade.Sprite {
     this._speed = 80; // set by GameScene via setSpeed()
     this._alive = true;
     this._walkDir = -1; // start walking left
-
-    // Bob tween
-    scene.tweens.add({
-      targets: this,
-      y: y - 8,
-      duration: 600 + Math.random() * 300,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
+    // No vertical tween — it fights physics and causes veggies to fly
   }
 
   setSpeed(speed) {

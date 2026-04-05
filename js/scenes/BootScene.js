@@ -16,6 +16,7 @@ class BootScene extends Phaser.Scene {
     this._makeFlag();
     this._makeHeart();
     this._makeStarParticle();
+    this._makeHamburger();
     this.scene.start('MenuScene');
   }
 
@@ -50,40 +51,49 @@ class BootScene extends Phaser.Scene {
   }
 
   _makeVeggies() {
-    // Carrot
     this._drawCarrot();
-    // Broccoli
     this._drawBroccoli();
-    // Celery
     this._drawCelery();
-    // Spinach
     this._drawSpinach();
+    this._drawCabbage();
   }
 
   _drawCarrot() {
     const g = this.make.graphics({ x: 0, y: 0, add: false });
-    // Body
-    g.fillStyle(0xFF7722, 1);
-    g.fillTriangle(20, 48, 0, 0, 40, 0);
-    // Green top
-    g.fillStyle(0x33aa33, 1);
-    g.fillRect(8, -12, 6, 16);
-    g.fillRect(18, -16, 6, 20);
-    g.fillRect(28, -10, 6, 14);
-    // Eyes (angry face)
+    // Leafy green top
+    g.fillStyle(0x228B22, 1);
+    g.fillRect(17, 0, 5, 16);
+    g.fillRect(10, 2, 4, 13);
+    g.fillRect(25, 2, 4, 13);
+    g.fillStyle(0x44cc33, 1);
+    g.fillEllipse(19, 6, 7, 14);
+    g.fillEllipse(12, 8, 5, 11);
+    g.fillEllipse(27, 8, 5, 11);
+    // Orange body — wide rounded top, tapering to a point (NOT a pizza triangle)
+    g.fillStyle(0xFF6600, 1);
+    g.fillRoundedRect(7, 13, 25, 30, { tl: 10, tr: 10, bl: 0, br: 0 });
+    // Taper to tip
+    g.fillTriangle(7, 37, 32, 37, 19, 52);
+    // Lighter highlight stripe down the left
+    g.fillStyle(0xFF9933, 0.7);
+    g.fillRoundedRect(9, 15, 8, 22, 4);
+    // Eyes
     g.fillStyle(0x1a0a00, 1);
-    g.fillCircle(13, 14, 4);
-    g.fillCircle(27, 14, 4);
+    g.fillCircle(14, 24, 4);
+    g.fillCircle(25, 24, 4);
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(15, 23, 1.5);
+    g.fillCircle(26, 23, 1.5);
     // Angry brows
     g.fillStyle(0x1a0a00, 1);
-    g.fillRect(9, 8, 9, 3);
-    g.fillRect(23, 8, 9, 3);
+    g.fillRect(10, 18, 8, 2.5);
+    g.fillRect(22, 18, 8, 2.5);
     // Grumpy mouth
     g.fillStyle(0x1a0a00, 1);
-    g.fillRect(12, 26, 16, 3);
-    g.fillRect(12, 26, 3, -5);
-    g.fillRect(25, 26, 3, -5);
-    g.generateTexture('carrot', 40, 48);
+    g.fillRect(13, 32, 13, 3);
+    g.fillRect(13, 30, 3, 3);
+    g.fillRect(23, 30, 3, 3);
+    g.generateTexture('carrot', 40, 54);
     g.destroy();
   }
 
@@ -173,6 +183,110 @@ class BootScene extends Phaser.Scene {
     g.fillRect(27, 30, 3, -4);
     g.generateTexture('spinach', 44, 44);
     g.destroy();
+  }
+
+  _drawCabbage() {
+    const g = this.make.graphics({ x: 0, y: 0, add: false });
+    // Outer leaves — pale green
+    g.fillStyle(0x7dc47d, 1);
+    g.fillEllipse(24, 26, 46, 42);
+    // Mid leaves
+    g.fillStyle(0x5aaa5a, 1);
+    g.fillEllipse(24, 26, 36, 34);
+    g.fillEllipse(12, 20, 20, 18);
+    g.fillEllipse(36, 20, 20, 18);
+    g.fillEllipse(24, 14, 22, 16);
+    // Inner tight head
+    g.fillStyle(0xaaddaa, 1);
+    g.fillEllipse(24, 27, 24, 22);
+    // Leaf vein lines
+    g.lineStyle(1.5, 0x33883a, 0.6);
+    g.strokeEllipse(24, 26, 42, 38);
+    g.strokeEllipse(24, 26, 28, 26);
+    // Eyes (mean)
+    g.fillStyle(0x1a0a00, 1);
+    g.fillCircle(17, 25, 4);
+    g.fillCircle(31, 25, 4);
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(18, 24, 1.5);
+    g.fillCircle(32, 24, 1.5);
+    // Angry brows
+    g.fillStyle(0x1a0a00, 1);
+    g.fillRect(13, 19, 8, 2.5);
+    g.fillRect(27, 19, 8, 2.5);
+    // Frown
+    g.fillRect(15, 32, 18, 3);
+    g.fillRect(15, 30, 3, 3);
+    g.fillRect(30, 30, 3, 3);
+    g.generateTexture('cabbage', 48, 48);
+    g.destroy();
+  }
+
+  _makeHamburger() {
+    // Burger buddy companion sprite
+    const g = this.make.graphics({ x: 0, y: 0, add: false });
+    // Bottom bun
+    g.fillStyle(0xD4820A, 1);
+    g.fillRoundedRect(4, 38, 44, 16, { tl: 4, tr: 4, bl: 10, br: 10 });
+    g.fillStyle(0xF0A040, 0.5);
+    g.fillRect(4, 38, 44, 4);
+    // Patty
+    g.fillStyle(0x7B3B00, 1);
+    g.fillRoundedRect(3, 30, 46, 10, 3);
+    // Cheese (yellow drip)
+    g.fillStyle(0xFFCC00, 1);
+    g.fillRect(2, 28, 48, 6);
+    g.fillRect(0, 28, 6, 10);
+    g.fillRect(46, 28, 6, 10);
+    // Lettuce (green ruffles)
+    g.fillStyle(0x44bb44, 1);
+    g.fillEllipse(8,  25, 14, 8);
+    g.fillEllipse(20, 23, 14, 8);
+    g.fillEllipse(32, 25, 14, 8);
+    g.fillEllipse(44, 25, 14, 8);
+    // Top bun
+    g.fillStyle(0xD4820A, 1);
+    g.fillEllipse(26, 16, 46, 28);
+    g.fillStyle(0xF5A050, 1);
+    g.fillEllipse(26, 14, 36, 16);
+    // Sesame seeds
+    g.fillStyle(0xFFEECC, 1);
+    g.fillEllipse(16, 10, 5, 3);
+    g.fillEllipse(28, 7,  5, 3);
+    g.fillEllipse(38, 11, 5, 3);
+    // Friendly eyes
+    g.fillStyle(0x1a0a00, 1);
+    g.fillCircle(18, 18, 5);
+    g.fillCircle(34, 18, 5);
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(19, 17, 2);
+    g.fillCircle(35, 17, 2);
+    // Big smile
+    g.fillStyle(0x1a0a00, 1);
+    g.fillRect(16, 24, 20, 3);
+    g.fillRect(14, 21, 3, 5);
+    g.fillRect(35, 21, 3, 5);
+    g.generateTexture('burger_buddy', 52, 54);
+    g.destroy();
+
+    // Burger power-up collectible (smaller, glowing)
+    const gp = this.make.graphics({ x: 0, y: 0, add: false });
+    gp.fillStyle(0xFFAA00, 0.3);
+    gp.fillCircle(20, 20, 20);
+    gp.fillStyle(0xD4820A, 1);
+    gp.fillEllipse(20, 22, 34, 20);
+    gp.fillStyle(0x7B3B00, 1);
+    gp.fillRect(5, 19, 30, 6);
+    gp.fillStyle(0x44bb44, 1);
+    gp.fillEllipse(20, 17, 28, 8);
+    gp.fillStyle(0xD4820A, 1);
+    gp.fillEllipse(20, 13, 32, 16);
+    gp.fillStyle(0xffffff, 1);
+    gp.fillCircle(14, 12, 3);
+    gp.fillCircle(22, 10, 3);
+    gp.fillCircle(29, 12, 3);
+    gp.generateTexture('burger_pu', 40, 36);
+    gp.destroy();
   }
 
   _makeCondimentEnemies() {

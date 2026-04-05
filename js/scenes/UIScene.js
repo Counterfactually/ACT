@@ -46,14 +46,14 @@ class UIScene extends Phaser.Scene {
       fontFamily: 'Arial, sans-serif',
     }).setOrigin(0.5, 0).setDepth(100).setScrollFactor(0);
 
-    // ── Power-up shots remaining ──────────────────────────────
-    this._shotsTxt = this.add.text(20, GAME.HEIGHT - 50, '', {
-      fontSize: '16px',
+    // ── Power-up shots remaining — placed above touch buttons ───
+    this._shotsTxt = this.add.text(GAME.WIDTH / 2, GAME.HEIGHT - 110, '', {
+      fontSize: '22px',
       fill: '#FF8800',
       stroke: '#000000',
-      strokeThickness: 3,
+      strokeThickness: 4,
       fontFamily: 'Arial Black, Arial',
-    }).setDepth(100).setScrollFactor(0);
+    }).setOrigin(0.5).setDepth(100).setScrollFactor(0);
 
     // ── Touch controls ───────────────────────────────────────
     this._buildTouchControls();
@@ -115,12 +115,12 @@ class UIScene extends Phaser.Scene {
   // ── Touch control buttons ─────────────────────────────────
 
   _buildTouchControls() {
-    const btnY   = GAME.HEIGHT - 58;
-    const btnW   = 72;
-    const btnH   = 60;
-    const alpha  = 0.55;
-    const radius = 14;
-    const style  = { fontSize: '28px', fontFamily: 'Arial', stroke: '#000', strokeThickness: 2 };
+    const btnY   = GAME.HEIGHT - 50;
+    const btnW   = 96;   // wider for iPad fingers
+    const btnH   = 72;   // taller for iPad fingers
+    const alpha  = 0.60;
+    const radius = 16;
+    const style  = { fontSize: '30px', fontFamily: 'Arial', stroke: '#000', strokeThickness: 3 };
 
     const makeBtn = (x, y, label, onDown, onUp) => {
       const g = this.add.graphics().setDepth(200).setScrollFactor(0);
@@ -146,25 +146,25 @@ class UIScene extends Phaser.Scene {
     };
 
     // Left
-    makeBtn(52, btnY, '◀',
+    makeBtn(58, btnY, '◀',
       () => this.registry.set('ctrl_left', true),
       () => this.registry.set('ctrl_left', false)
     );
 
     // Right
-    makeBtn(136, btnY, '▶',
+    makeBtn(166, btnY, '▶',
       () => this.registry.set('ctrl_right', true),
       () => this.registry.set('ctrl_right', false)
     );
 
-    // Jump
-    makeBtn(GAME.WIDTH - 56, btnY, '▲ JUMP',
+    // Jump  (right side)
+    makeBtn(GAME.WIDTH - 62, btnY, '▲',
       () => this.registry.set('ctrl_jump', true),
-      () => {} // one-shot; GameScene clears it
+      () => {}
     );
 
-    // Shoot
-    makeBtn(GAME.WIDTH - 144, btnY, '🍅 FIRE',
+    // Shoot (left of jump)
+    makeBtn(GAME.WIDTH - 170, btnY, '🍅 FIRE',
       () => this.registry.set('ctrl_shoot', true),
       () => {}
     );

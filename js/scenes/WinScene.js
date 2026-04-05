@@ -89,34 +89,35 @@ class WinScene extends Phaser.Scene {
 
     // Next level / main menu buttons
     if (isLastLevel) {
-      this._makeButton(GAME.WIDTH / 2 - 110, y + 10, '🔄 PLAY AGAIN', 0x226622, () => {
+      this._makeButton(GAME.WIDTH / 2 - 130, y + 10, '🔄 PLAY AGAIN', 0x226622, () => {
         this.scene.start('GameScene', { level: 1, score: 0 });
       });
-      this._makeButton(GAME.WIDTH / 2 + 110, y + 10, '🏆 SCORES', 0x884400, () => {
+      this._makeButton(GAME.WIDTH / 2 + 130, y + 10, '🏆 SCORES', 0x884400, () => {
         this.scene.start('LeaderboardScene', {
-          score: this._totalScore, gameOver: false, fromWin: true,
+          score: this._totalScore, fromWin: true,
         });
       });
     } else {
-      this._makeButton(GAME.WIDTH / 2 - 110, y + 10, '▶ NEXT LEVEL', 0x226622, () => {
+      this._makeButton(GAME.WIDTH / 2 - 130, y + 10, '▶ NEXT LEVEL', 0x226622, () => {
         this.scene.start('GameScene', {
           level: this._level + 1,
           score: this._totalScore,
           health: this._health,
         });
       });
-      this._makeButton(GAME.WIDTH / 2 + 110, y + 10, '🏠 MENU', 0x884400, () => {
+      this._makeButton(GAME.WIDTH / 2 + 130, y + 10, '🏠 MENU', 0x884400, () => {
         this.scene.start('MenuScene');
       });
     }
   }
 
   _makeButton(x, y, label, color, callback) {
+    const w = 240, h = 64;
     const bg = this.add.graphics();
     bg.fillStyle(color, 1);
-    bg.fillRoundedRect(x - 105, y - 28, 210, 56, 12);
+    bg.fillRoundedRect(x - w / 2, y - h / 2, w, h, 14);
     bg.lineStyle(3, 0xffffff, 0.6);
-    bg.strokeRoundedRect(x - 105, y - 28, 210, 56, 12);
+    bg.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 14);
 
     const txt = this.add.text(x, y, label, {
       fontSize: '20px',
@@ -126,7 +127,7 @@ class WinScene extends Phaser.Scene {
       fontFamily: 'Arial Black, Arial',
     }).setOrigin(0.5);
 
-    const zone = this.add.zone(x, y, 210, 56).setInteractive({ useHandCursor: true });
+    const zone = this.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
     zone.on('pointerdown', callback);
     zone.on('pointerover', () => this.tweens.add({ targets: [bg, txt], scaleX: 1.05, scaleY: 1.05, duration: 80 }));
     zone.on('pointerout',  () => this.tweens.add({ targets: [bg, txt], scaleX: 1, scaleY: 1, duration: 80 }));

@@ -6,14 +6,15 @@ class GameScene extends Phaser.Scene {
   constructor() { super('GameScene'); }
 
   init(data) {
-    this._levelId  = (data && data.level)  || 1;
-    this._score    = (data && data.score)  || 0;
-    this._health   = (data && data.health !== undefined) ? data.health : PLAYER_CFG.MAX_HEALTH;
-    this._levelCfg = LEVELS[this._levelId - 1];
-    this._elapsed  = 0;
-    this._gameOver = false;
-    this._levelDone= false;
+    this._levelId   = (data && data.level)  || 1;
+    this._score     = (data && data.score)  || 0;
+    this._health    = (data && data.health !== undefined) ? data.health : PLAYER_CFG.MAX_HEALTH;
+    this._levelCfg  = LEVELS[this._levelId - 1];
+    this._elapsed   = 0;
+    this._gameOver  = false;
+    this._levelDone = false;
     this._projectiles = [];
+    this._burgerBuddy = null; // Hamburger NPC companion
   }
 
   create() {
@@ -81,11 +82,13 @@ class GameScene extends Phaser.Scene {
       this._handlePlayerCondiment, null, this
     );
 
-    // Collect power-up
+    // Collect power-up (condiment bottles)
     this.physics.add.overlap(
       this._player, this._powerUps,
       this._handlePowerUp, null, this
     );
+
+    // Burger power-ups are in the same group — filtered inside handler
 
     // ── UI Scene overlay ─────────────────────────────────────
     this.scene.launch('UIScene');
@@ -228,13 +231,16 @@ class GameScene extends Phaser.Scene {
   _handlePowerUp(player, powerUp) {
     if (!powerUp._alive) return;
     powerUp.collect(this);
-    player.collectPowerUp(powerUp.puType);
     this._addScore(SCORE.POWER_UP);
-    this.registry.set('shots', player.shotsLeft);
-    this.registry.set('powerUpType', powerUp.puType);
-
-    // Flash effect
     this.cameras.main.flash(200, 255, 255, 100);
+
+    if (powerUp.puType === 'burger_pu') {
+      this._spawnBurgerBuddy();
+    } else {
+      player.collectPowerUp(powerUp.puType);
+      this.registry.set('shots', player.shotsLeft);
+      this.registry.set('powerUpType', powerUp.puType);
+    }
   }
 
   // ── Score / Health ────────────────────────────────────────
@@ -272,24 +278,28 @@ class GameScene extends Phaser.Scene {
   // ── Shooting ─────────────────────────────────────────────
 
   _fireProjectile() {
-    const proj = this._player.shoot(this);
-    if (!proj) return;
+    // Shoots in BOTH directions simultaneously (costs 1 shot)
+    const projs = this._player.shootBoth(this);
+    if (projs.length === 0) return;
     this.registry.set('shots', this._player.shotsLeft);
-    this._projectiles.push(proj);
+    projs.forEach(proj => {
+      this._setupProjectileCollisions(proj, true);
+      this._projectiles.push(proj);
+    });
+  }
 
-    // Collide projectile with veggies
+  // Wire collision callbacks for any projectile (player or burger buddy)
+  _setupProjectileCollisions(proj, scoreable) {
     this.physics.add.overlap(proj, this._veggies, (p, v) => {
-      if (!v._alive) return;
+      if (!v._alive || proj._destroyed) return;
       v.die(this);
-      this._addScore(SCORE.SHOOT);
+      if (scoreable) this._addScore(SCORE.SHOOT);
       this._destroyProjectile(proj);
     });
-
-    // Collide projectile with condiment enemies
     this.physics.add.overlap(proj, this._condiments, (p, c) => {
-      if (!c._alive) return;
+      if (!c._alive || proj._destroyed) return;
       c.die(this);
-      this._addScore(SCORE.SHOOT);
+      if (scoreable) this._addScore(SCORE.SHOOT);
       this._destroyProjectile(proj);
     });
   }
@@ -297,13 +307,101 @@ class GameScene extends Phaser.Scene {
   _destroyProjectile(proj) {
     if (proj._destroyed) return;
     proj._destroyed = true;
-    // Splat effect
     const splat = this.add.graphics().setDepth(25);
     splat.fillStyle(0xFF4400, 0.7);
     splat.fillCircle(proj.x, proj.y, 14);
     this.tweens.add({ targets: splat, alpha: 0, duration: 300, onComplete: () => splat.destroy() });
     proj.destroy();
     this._projectiles = this._projectiles.filter(p => p !== proj);
+  }
+
+  // ── Burger Buddy NPC ─────────────────────────────────────
+
+  _spawnBurgerBuddy() {
+    if (this._burgerBuddy) {
+      // Refresh lifetime if already active
+      this._burgerBuddy.lifetime = 14000;
+      return;
+    }
+    const sprite = this.add.image(
+      this._player.x - 70, this._player.y, 'burger_buddy'
+    ).setDepth(9).setScale(0.85);
+
+    this._burgerBuddy = { sprite, lifetime: 14000, shootTimer: 0, alive: true };
+
+    // Announce
+    const txt = this.add.text(this._player.x, this._player.y - 60,
+      '🍔 BURGER BUDDY!',
+      { fontSize: '24px', fill: '#FFD700', stroke: '#000', strokeThickness: 5, fontFamily: 'Arial Black, Arial' }
+    ).setDepth(35).setOrigin(0.5);
+    this.tweens.add({ targets: txt, y: txt.y - 55, alpha: 0, duration: 1600, onComplete: () => txt.destroy() });
+  }
+
+  _updateBurgerBuddy(delta) {
+    const bb = this._burgerBuddy;
+    if (!bb || !bb.alive) return;
+
+    bb.lifetime -= delta;
+    if (bb.lifetime <= 0) { this._killBurgerBuddy(); return; }
+
+    // Follow player with a smooth lag, stay slightly behind
+    const targetX = this._player.x - (this._player._facingRight ? 70 : -70);
+    bb.sprite.x += (targetX - bb.sprite.x) * 0.07;
+    bb.sprite.y += (this._player.y - bb.sprite.y) * 0.07;
+    bb.sprite.setFlipX(bb.sprite.x > this._player.x);
+
+    // Flash when about to expire
+    if (bb.lifetime < 3000) {
+      bb.sprite.setAlpha(Math.floor(bb.lifetime / 200) % 2 === 0 ? 1 : 0.4);
+    }
+
+    // Auto-shoot at nearest enemy every 2 seconds
+    bb.shootTimer -= delta;
+    if (bb.shootTimer <= 0) {
+      bb.shootTimer = 2000;
+      this._burgerBuddyShoot();
+    }
+  }
+
+  _burgerBuddyShoot() {
+    const bb = this._burgerBuddy;
+    const allEnemies = [
+      ...this._veggies.getChildren(),
+      ...this._condiments.getChildren(),
+    ].filter(e => e._alive);
+    if (allEnemies.length === 0) return;
+
+    // Find nearest enemy
+    let nearest = allEnemies[0];
+    let minDist = Phaser.Math.Distance.Between(bb.sprite.x, bb.sprite.y, nearest.x, nearest.y);
+    allEnemies.forEach(e => {
+      const d = Phaser.Math.Distance.Between(bb.sprite.x, bb.sprite.y, e.x, e.y);
+      if (d < minDist) { minDist = d; nearest = e; }
+    });
+
+    const dir = nearest.x >= bb.sprite.x ? 1 : -1;
+    const proj = this.physics.add.image(
+      bb.sprite.x + dir * 30, bb.sprite.y - 5, 'proj_ketchup_pu'
+    );
+    proj.setDepth(9);
+    proj.body.setAllowGravity(false);
+    proj.body.setVelocityX(dir * PLAYER_CFG.PROJECTILE_SPEED * 0.85);
+    proj._startX = proj.x;
+    this._setupProjectileCollisions(proj, true); // burger shots also score
+    this._projectiles.push(proj);
+  }
+
+  _killBurgerBuddy() {
+    const bb = this._burgerBuddy;
+    if (!bb) return;
+    bb.alive = false;
+    this.tweens.add({
+      targets: bb.sprite,
+      alpha: 0, y: bb.sprite.y - 40,
+      duration: 600,
+      onComplete: () => bb.sprite.destroy(),
+    });
+    this._burgerBuddy = null;
   }
 
   // ── Level end ─────────────────────────────────────────────
@@ -367,6 +465,9 @@ class GameScene extends Phaser.Scene {
     this._condiments.getChildren().forEach(c => {
       if (c.update) c.update(this._player);
     });
+
+    // Burger buddy NPC update
+    this._updateBurgerBuddy(delta);
 
     // Projectile range check
     this._projectiles = this._projectiles.filter(proj => {
