@@ -10,8 +10,6 @@ function formatTime(secs) {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-const LEVEL_LABELS = ['Level 1\n3×3', 'Level 2\n3×4', 'Level 3\n4×4', 'Level 4\n4×5', 'Level 5\n5×5']
-
 function StartScreen({ onStart, bestTimes }) {
   const hasAny = Object.keys(bestTimes).length > 0
   return (
