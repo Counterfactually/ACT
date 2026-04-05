@@ -19,10 +19,11 @@ class GameScene extends Phaser.Scene {
 
   create() {
     const cfg = this._levelCfg;
+    this._levelWidth = cfg.width || GAME.LEVEL_WIDTH;
 
     // ── World bounds ─────────────────────────────────────────
-    this.physics.world.setBounds(0, 0, GAME.LEVEL_WIDTH, GAME.HEIGHT);
-    this.cameras.main.setBounds(0, 0, GAME.LEVEL_WIDTH, GAME.HEIGHT);
+    this.physics.world.setBounds(0, 0, this._levelWidth, GAME.HEIGHT);
+    this.cameras.main.setBounds(0, 0, this._levelWidth, GAME.HEIGHT);
 
     // ── Background ───────────────────────────────────────────
     this._buildBackground(cfg);
@@ -113,53 +114,56 @@ class GameScene extends Phaser.Scene {
     this._shootPressed = false;
   }
 
+  // Phaser calls this when the scene is shut down or replaced
+  shutdown() {
+    // Destroy burger buddy sprite so it doesn't linger between scenes
+    if (this._burgerBuddy) {
+      try { this._burgerBuddy.sprite.destroy(); } catch (_) {}
+      this._burgerBuddy = null;
+    }
+    // Ensure UIScene is always stopped when GameScene leaves
+    if (this.scene.isActive('UIScene')) {
+      this.scene.stop('UIScene');
+    }
+  }
+
   // ── Build helpers ─────────────────────────────────────────
 
   _buildBackground(cfg) {
-    // Sky gradient using two overlapping rectangles
-    this.add.rectangle(GAME.LEVEL_WIDTH / 2, GAME.HEIGHT / 2,
-      GAME.LEVEL_WIDTH, GAME.HEIGHT, cfg.bgColor2).setDepth(0);
+    const lw = this._levelWidth;
+    this.add.rectangle(lw / 2, GAME.HEIGHT / 2, lw, GAME.HEIGHT, cfg.bgColor2).setDepth(0);
 
-    // Far background hills (parallax layer 1 — moves at 20% player speed)
-    this._bgHills = this.add.tileSprite(
-      GAME.WIDTH / 2, GAME.HEIGHT * 0.55,
-      GAME.LEVEL_WIDTH, GAME.HEIGHT * 0.7,
-      'ground'
-    );
-    this._bgHills.setTileScale(3, 2);
-    this._bgHills.setAlpha(0.15);
-    this._bgHills.setScrollFactor(0.2);
-    this._bgHills.setDepth(1);
+    // Parallax hill layer
+    this._bgHills = this.add.tileSprite(GAME.WIDTH / 2, GAME.HEIGHT * 0.55,
+      lw, GAME.HEIGHT * 0.7, 'ground');
+    this._bgHills.setTileScale(3, 2).setAlpha(0.15).setScrollFactor(0.2).setDepth(1);
 
-    // Clouds (simple rectangles)
-    const cloudPositions = [200, 500, 900, 1400, 1900, 2500, 3000];
-    const cloudY = [60, 90, 50, 80, 65, 55, 75];
-    cloudPositions.forEach((cx, i) => {
+    // Clouds spread across full level width
+    const step = Math.floor(lw / 8);
+    for (let i = 0; i < 8; i++) {
+      const cx = 100 + i * step + Math.floor(Math.random() * 80);
+      const cy = 45 + Math.floor(Math.random() * 55);
       const cloud = this.add.graphics().setScrollFactor(0.3).setDepth(2);
-      cloud.fillStyle(0xffffff, 0.7);
-      cloud.fillRoundedRect(cx, cloudY[i], 120, 40, 20);
-      cloud.fillRoundedRect(cx + 20, cloudY[i] - 20, 80, 40, 20);
-    });
+      cloud.fillStyle(0xffffff, 0.65);
+      cloud.fillRoundedRect(cx, cy, 120, 38, 18);
+      cloud.fillRoundedRect(cx + 18, cy - 18, 80, 38, 18);
+    }
   }
 
   _buildGround(cfg) {
-    // Invisible rectangle with static physics — spans the full level width
+    const lw = this._levelWidth;
     const groundRect = this.add.rectangle(
-      GAME.LEVEL_WIDTH / 2,
-      GAME.GROUND_Y + GAME.GROUND_H / 2,
-      GAME.LEVEL_WIDTH,
-      GAME.GROUND_H,
-      0x000000, 0
+      lw / 2, GAME.GROUND_Y + GAME.GROUND_H / 2,
+      lw, GAME.GROUND_H, 0x000000, 0
     );
-    this.physics.add.existing(groundRect, true); // true = static
+    this.physics.add.existing(groundRect, true);
     this._groundBody = groundRect;
 
-    // Visual ground strip
-    const groundVis = this.add.graphics().setDepth(3);
-    groundVis.fillStyle(cfg.groundColor, 1);
-    groundVis.fillRect(0, GAME.GROUND_Y, GAME.LEVEL_WIDTH, GAME.GROUND_H);
-    groundVis.fillStyle(cfg.groundTop, 1);
-    groundVis.fillRect(0, GAME.GROUND_Y, GAME.LEVEL_WIDTH, 10);
+    const gv = this.add.graphics().setDepth(3);
+    gv.fillStyle(cfg.groundColor, 1);
+    gv.fillRect(0, GAME.GROUND_Y, lw, GAME.GROUND_H);
+    gv.fillStyle(cfg.groundTop, 1);
+    gv.fillRect(0, GAME.GROUND_Y, lw, 10);
   }
 
   _buildPlatforms(cfg) {
