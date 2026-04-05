@@ -2,7 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { buildLevel, LEVELS } from '../utils/cards.js'
 import { playFlip, playMatch, playMiss, playFanfare, playVictory } from '../utils/sounds.js'
 
-// gamePhase: 'start' | 'playing' | 'levelComplete' | 'gameWon'
+// gamePhase: 'start' | 'peeking' | 'playing' | 'levelComplete' | 'gameWon'
+const PEEK_DURATION = 2000  // ms all cards are shown at level start
+const HINT_DURATION = 1500  // ms all cards revealed for a hint
+const HINTS_PER_LEVEL = 3
 
 function loadBestTimes() {
   try {
@@ -19,39 +22,49 @@ function saveBestTime(levelIndex, seconds) {
 }
 
 export function useGameLogic() {
-  const [level, setLevel] = useState(0)          // 0-indexed
+  const [level, setLevel] = useState(0)
   const [cards, setCards] = useState([])
-  const [flipped, setFlipped] = useState([])     // instanceIds of face-up (unmatched) cards
-  const [matched, setMatched] = useState([])     // instanceIds of matched cards
+  const [flipped, setFlipped] = useState([])       // currently face-up (unmatched)
+  const [matched, setMatched] = useState([])       // permanently matched
+  const [justMatched, setJustMatched] = useState([]) // last matched pair (for sparkle)
   const [moves, setMoves] = useState(0)
   const [seconds, setSeconds] = useState(0)
   const [gamePhase, setGamePhase] = useState('start')
-  const [levelStats, setLevelStats] = useState(null)  // { moves, seconds, isNewRecord, bestTime }
+  const [levelStats, setLevelStats] = useState(null)
   const [bestTimes, setBestTimes] = useState(loadBestTimes)
+  const [hintsLeft, setHintsLeft] = useState(HINTS_PER_LEVEL)
+  const [hinting, setHinting] = useState(false)    // hint reveal active
 
-  const checking = useRef(false)   // block clicks while evaluating a pair
+  const checking = useRef(false)
   const timerRef = useRef(null)
 
-  // --- Timer ---
+  // Timer only runs during active play
   useEffect(() => {
-    if (gamePhase === 'playing') {
+    if (gamePhase === 'playing' && !hinting) {
       timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000)
     } else {
       clearInterval(timerRef.current)
     }
     return () => clearInterval(timerRef.current)
-  }, [gamePhase])
+  }, [gamePhase, hinting])
 
   // --- Start / restart level ---
   const startLevel = useCallback((levelIndex) => {
     checking.current = false
+    const built = buildLevel(levelIndex)
     setLevel(levelIndex)
-    setCards(buildLevel(levelIndex))
+    setCards(built)
     setFlipped([])
     setMatched([])
+    setJustMatched([])
     setMoves(0)
     setSeconds(0)
-    setGamePhase('playing')
+    setHintsLeft(HINTS_PER_LEVEL)
+    setHinting(false)
+
+    // Peek phase — show all cards briefly, then start playing
+    setGamePhase('peeking')
+    setTimeout(() => setGamePhase('playing'), PEEK_DURATION)
   }, [])
 
   const startGame = useCallback(() => startLevel(0), [startLevel])
@@ -67,6 +80,18 @@ export function useGameLogic() {
   }, [level, startLevel])
 
   const restartGame = useCallback(() => startLevel(0), [startLevel])
+
+  // --- Hint ---
+  const useHint = useCallback(() => {
+    if (hinting || hintsLeft <= 0 || gamePhase !== 'playing') return
+    checking.current = true
+    setHinting(true)
+    setHintsLeft((h) => h - 1)
+    setTimeout(() => {
+      setHinting(false)
+      checking.current = false
+    }, HINT_DURATION)
+  }, [hinting, hintsLeft, gamePhase])
 
   // --- Card click handler ---
   const handleCardClick = useCallback(
@@ -94,8 +119,12 @@ export function useGameLogic() {
           playMatch()
           const newMatched = [...matched, idA, idB]
           setMatched(newMatched)
+          setJustMatched([idA, idB])
           setFlipped([])
           checking.current = false
+
+          // Clear sparkle after animation
+          setTimeout(() => setJustMatched([]), 700)
 
           // Check if all pairs matched
           const totalPairs = LEVELS[level].pairs
@@ -128,7 +157,7 @@ export function useGameLogic() {
         }
       }
     },
-    [gamePhase, checking, matched, flipped, cards, level, moves, seconds]
+    [gamePhase, matched, flipped, cards, level, moves, seconds]
   )
 
   return {
@@ -136,14 +165,19 @@ export function useGameLogic() {
     cards,
     flipped,
     matched,
+    justMatched,
     moves,
     seconds,
     gamePhase,
     levelStats,
     bestTimes,
+    hintsLeft,
+    hinting,
     handleCardClick,
+    useHint,
     startGame,
     nextLevel,
     restartGame,
   }
 }
+

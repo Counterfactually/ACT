@@ -246,6 +246,31 @@ body {
   font-weight: 800;
 }
 
+/* Hint button */
+.btn--hint {
+  font-family: 'Fredoka One', cursive;
+  font-size: 0.95rem;
+  padding: 6px 14px;
+  border-radius: 50px;
+  border: 2.5px solid #C084FC;
+  background: #fff;
+  color: #7c5e99;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, opacity 0.2s;
+  white-space: nowrap;
+}
+
+.btn--hint:not(:disabled):hover {
+  background: #f3e8ff;
+  transform: scale(1.05);
+}
+
+.btn--hint-disabled,
+.btn--hint:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ============================================================
    Board
    ============================================================ */
@@ -534,6 +559,117 @@ body {
 @keyframes confettiFall {
   0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
   100% { transform: translateY(120px) rotate(360deg); opacity: 0; }
+}
+
+/* ============================================================
+   Peek banner
+   ============================================================ */
+.peek-banner {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.4rem;
+  color: #fff;
+  background: linear-gradient(135deg, #A855F7, #60A5FA);
+  border-radius: 50px;
+  padding: 10px 28px;
+  box-shadow: 0 4px 16px rgba(130, 80, 220, 0.4);
+  animation: peekPulse 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes peekPulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.04); }
+}
+
+/* Peek card — slightly transparent back to indicate "no touch" */
+.card--peeking {
+  cursor: default;
+}
+
+.card--peeking .card__inner {
+  transition: transform 0.3s ease;
+}
+
+/* ============================================================
+   Sparkle burst on match
+   ============================================================ */
+.card__sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sparkle {
+  position: absolute;
+  font-size: 1rem;
+  animation: sparkleBurst 0.65s ease-out forwards;
+  --angle: calc(var(--i) * 60deg);
+  transform-origin: center;
+}
+
+@keyframes sparkleBurst {
+  0%   { transform: rotate(var(--angle)) translateY(0)     scale(0.5); opacity: 1; }
+  60%  { transform: rotate(var(--angle)) translateY(-38px) scale(1.2); opacity: 1; }
+  100% { transform: rotate(var(--angle)) translateY(-52px) scale(0.6); opacity: 0; }
+}
+
+/* ============================================================
+   Best times table on start screen
+   ============================================================ */
+.best-times {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 2px dashed #e8d5f5;
+}
+
+.best-times__title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.1rem;
+  color: #a07abf;
+  margin-bottom: 10px;
+}
+
+.best-times__grid {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.best-times__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f5eeff;
+  border-radius: 12px;
+  padding: 8px 14px;
+  min-width: 56px;
+  border: 2px solid #e0c8f8;
+}
+
+.best-times__cell--done {
+  background: linear-gradient(135deg, #fff3c0, #ffd0d8);
+  border-color: #ffd700;
+}
+
+.best-times__lvl {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #a07abf;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.best-times__time {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1rem;
+  color: #c9a000;
+}
+
+.best-times__cell:not(.best-times__cell--done) .best-times__time {
+  color: #ccc;
 }
 
 /* ============================================================

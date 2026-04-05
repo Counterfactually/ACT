@@ -1,9 +1,12 @@
 import UnicornSVG from './UnicornSVG.jsx'
 
-export default function Card({ card, isFlipped, isMatched, onClick }) {
+const SPARKLES = ['✨','⭐','🌟','💫','✨','🌟']
+
+export default function Card({ card, isFlipped, isMatched, isJustMatched, isPeeking, isHinting, onClick }) {
   const isDeco = card.type === 'deco'
   const isUnicorn = card.type === 'unicorn'
-  const faceUp = isFlipped || isMatched || isDeco
+  const faceUp = isFlipped || isMatched || isDeco || isPeeking || isHinting
+  const clickable = !isDeco && !isMatched && !isPeeking && !isHinting
 
   return (
     <div
@@ -11,16 +14,18 @@ export default function Card({ card, isFlipped, isMatched, onClick }) {
         'card',
         faceUp ? 'card--flipped' : '',
         isMatched ? 'card--matched' : '',
+        isJustMatched ? 'card--just-matched' : '',
         isDeco ? 'card--deco' : '',
+        isPeeking ? 'card--peeking' : '',
       ]
         .filter(Boolean)
         .join(' ')}
-      onClick={isDeco || isMatched ? undefined : onClick}
-      role={isDeco || isMatched ? 'img' : 'button'}
+      onClick={clickable ? onClick : undefined}
+      role={clickable ? 'button' : 'img'}
       aria-label={faceUp ? card.label : 'Hidden card'}
-      tabIndex={isDeco || isMatched ? -1 : 0}
+      tabIndex={clickable ? 0 : -1}
       onKeyDown={(e) => {
-        if ((e.key === 'Enter' || e.key === ' ') && !isDeco && !isMatched) onClick()
+        if ((e.key === 'Enter' || e.key === ' ') && clickable) onClick()
       }}
     >
       <div className="card__inner">
@@ -41,6 +46,17 @@ export default function Card({ card, isFlipped, isMatched, onClick }) {
           <span className="card__label">{card.label}</span>
         </div>
       </div>
+
+      {/* Sparkle burst on match */}
+      {isJustMatched && (
+        <div className="card__sparkles" aria-hidden="true">
+          {SPARKLES.map((s, i) => (
+            <span key={i} className="sparkle" style={{ '--i': i }}>
+              {s}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
