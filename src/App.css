@@ -1,0 +1,517 @@
+/* ============================================================
+   Easter Flip — Global Styles
+   Palette: pastel rainbow (lavender, mint, peach, baby-blue,
+            soft-yellow, rose)
+   Font: Fredoka One (headings) + Nunito (body)
+   ============================================================ */
+
+:root {
+  --lavender:    #E8D5F5;
+  --mint:        #C8F5E0;
+  --peach:       #FFD9C0;
+  --baby-blue:   #C5E8FF;
+  --soft-yellow: #FFF3C0;
+  --rose:        #FFD0D8;
+  --white:       #FFFFFF;
+
+  --card-size:   clamp(70px, 14vw, 110px);
+  --card-gap:    clamp(6px, 1.5vw, 12px);
+  --radius:      16px;
+
+  --shadow-card: 0 4px 12px rgba(180, 120, 200, 0.25);
+  --shadow-card-hover: 0 8px 20px rgba(180, 120, 200, 0.4);
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* ============================================================
+   Animated pastel rainbow background
+   ============================================================ */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    var(--rose),
+    var(--lavender),
+    var(--baby-blue),
+    var(--mint),
+    var(--soft-yellow),
+    var(--peach),
+    var(--rose)
+  );
+  background-size: 400% 400%;
+  animation: rainbowShift 12s ease infinite;
+  position: relative;
+  padding: 16px;
+}
+
+@keyframes rainbowShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ============================================================
+   Background decorative flowers
+   ============================================================ */
+.bg-flowers {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.bg-flower {
+  position: absolute;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  opacity: 0.18;
+  animation: floatFlower 14s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 1.4s);
+  left: calc(var(--i) * 10.5% + 2%);
+  top: calc((var(--i) % 3) * 33% + 5%);
+}
+
+@keyframes floatFlower {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%       { transform: translateY(-18px) rotate(15deg); }
+}
+
+/* ============================================================
+   Start Screen
+   ============================================================ */
+.start-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 80vh;
+  z-index: 1;
+}
+
+.start-screen__inner {
+  background: rgba(255,255,255,0.85);
+  border-radius: 28px;
+  padding: 40px 48px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(180, 120, 200, 0.3);
+  max-width: 480px;
+  width: 100%;
+  backdrop-filter: blur(8px);
+}
+
+.start-screen__flowers {
+  font-size: 1.6rem;
+  letter-spacing: 4px;
+  margin-bottom: 12px;
+}
+
+.start-screen__title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  background: linear-gradient(135deg, #FF6B9D, #A855F7, #3B82F6, #10B981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+
+.start-screen__sub {
+  font-size: 1.25rem;
+  color: #7c5e99;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.start-screen__preview {
+  font-size: 2rem;
+  letter-spacing: 6px;
+  margin-bottom: 24px;
+  animation: bounce 1.8s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+.start-screen__hint {
+  margin-top: 18px;
+  font-size: 0.95rem;
+  color: #a07abf;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.3rem;
+  padding: 14px 36px;
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: inline-block;
+}
+
+.btn:active { transform: scale(0.95); }
+
+.btn--primary {
+  background: linear-gradient(135deg, #FF9FD2, #C084FC, #60A5FA);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(180, 100, 220, 0.5);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.btn--primary:hover {
+  box-shadow: 0 8px 28px rgba(180, 100, 220, 0.65);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.btn--big {
+  font-size: 1.6rem;
+  padding: 18px 48px;
+}
+
+/* ============================================================
+   Game container
+   ============================================================ */
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  z-index: 1;
+  width: 100%;
+  max-width: 700px;
+}
+
+/* ============================================================
+   HUD
+   ============================================================ */
+.hud {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: rgba(255,255,255,0.82);
+  border-radius: 50px;
+  padding: 10px 24px;
+  box-shadow: 0 4px 16px rgba(180, 120, 200, 0.2);
+  backdrop-filter: blur(6px);
+}
+
+.hud__badge {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.15rem;
+  background: linear-gradient(135deg, #FF9FD2, #C084FC);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hud__stat {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #7c5e99;
+  white-space: nowrap;
+}
+
+.hud__pairs {
+  color: #3d9970;
+}
+
+/* ============================================================
+   Board
+   ============================================================ */
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--card-size));
+  gap: var(--card-gap);
+  justify-content: center;
+}
+
+/* ============================================================
+   Card
+   ============================================================ */
+.card {
+  width: var(--card-size);
+  height: var(--card-size);
+  perspective: 700px;
+  cursor: pointer;
+}
+
+.card:focus-visible {
+  outline: 3px solid #C084FC;
+  border-radius: var(--radius);
+}
+
+.card__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius);
+}
+
+.card--flipped .card__inner,
+.card--matched .card__inner,
+.card--deco .card__inner {
+  transform: rotateY(180deg);
+}
+
+/* Back face */
+.card__back {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  backface-visibility: hidden;
+  background: linear-gradient(135deg, var(--rose), var(--lavender), var(--mint));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-card);
+  border: 2.5px solid rgba(255,255,255,0.7);
+}
+
+.card__back-flower {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  filter: drop-shadow(0 1px 3px rgba(180,100,200,0.3));
+}
+
+.card:not(.card--flipped):not(.card--matched):not(.card--deco):hover .card__back {
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Front face */
+.card__front {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-card);
+  border: 2.5px solid rgba(255,255,255,0.8);
+  gap: 2px;
+}
+
+.card__emoji {
+  font-size: clamp(2rem, 5.5vw, 3.5rem);
+  line-height: 1;
+}
+
+.card__label {
+  font-size: clamp(0.45rem, 1.2vw, 0.65rem);
+  font-weight: 800;
+  color: #a07abf;
+  text-align: center;
+  letter-spacing: 0.3px;
+  max-width: 90%;
+}
+
+/* Matched card glow + pulse */
+.card--matched .card__front {
+  background: linear-gradient(135deg, #d4ffed, #f0fff4);
+  border-color: #6ee7a8;
+  animation: matchedPulse 0.5s ease;
+}
+
+@keyframes matchedPulse {
+  0%   { transform: rotateY(180deg) scale(1); }
+  50%  { transform: rotateY(180deg) scale(1.1); }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+
+/* Decorative center card */
+.card--deco {
+  cursor: default;
+}
+
+.card--deco .card__front {
+  background: linear-gradient(135deg, var(--soft-yellow), var(--peach));
+  border-color: #FFD700;
+  animation: decoGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes decoGlow {
+  0%, 100% { box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.4); }
+  50%       { box-shadow: 0 0 18px 6px rgba(255, 200, 50, 0.7); }
+}
+
+.card--deco .card__emoji {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+}
+
+/* ============================================================
+   Overlay (Level Complete + Game Won)
+   ============================================================ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(180, 120, 240, 0.35);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.overlay__box {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 28px;
+  padding: 36px 44px;
+  text-align: center;
+  box-shadow: 0 12px 50px rgba(180, 100, 220, 0.35);
+  max-width: 420px;
+  width: 100%;
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.overlay__confetti {
+  font-size: 1.5rem;
+  letter-spacing: 4px;
+  margin-bottom: 12px;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.06); }
+}
+
+.overlay__title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(1.8rem, 6vw, 2.8rem);
+  background: linear-gradient(135deg, #FF6B9D, #A855F7, #3B82F6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+
+.overlay__sub {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #7c5e99;
+  margin-bottom: 16px;
+}
+
+.overlay__stats {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #7c5e99;
+  margin-bottom: 24px;
+}
+
+/* ============================================================
+   Victory screen
+   ============================================================ */
+.overlay--victory {
+  background: rgba(200, 140, 255, 0.4);
+}
+
+.game-complete {
+  position: relative;
+  overflow: hidden;
+  padding-top: 24px;
+}
+
+.victory__title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2.2rem, 8vw, 3.8rem);
+  background: linear-gradient(135deg, #FF6B9D, #FFD700, #A855F7, #3B82F6, #10B981);
+  background-size: 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rainbowText 3s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes rainbowText {
+  0%   { background-position: 0%; }
+  100% { background-position: 200%; }
+}
+
+.victory__sub {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #7c5e99;
+  margin-bottom: 8px;
+}
+
+.victory__icons {
+  font-size: 1.8rem;
+  letter-spacing: 6px;
+  margin: 16px 0 24px;
+  animation: bounce 1.4s ease-in-out infinite;
+}
+
+/* Confetti shower */
+.confetti-shower {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  font-size: 1.2rem;
+  left: var(--x);
+  animation: confettiFall 2.5s ease-in var(--delay) infinite;
+  top: -20px;
+}
+
+@keyframes confettiFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(120px) rotate(360deg); opacity: 0; }
+}
+
+/* ============================================================
+   Responsive tweaks
+   ============================================================ */
+@media (max-width: 480px) {
+  .start-screen__inner { padding: 28px 20px; }
+  .overlay__box { padding: 28px 20px; }
+  .hud { gap: 8px; padding: 8px 14px; }
+  .btn--big { font-size: 1.3rem; padding: 14px 32px; }
+}
