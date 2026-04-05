@@ -240,7 +240,25 @@ class GameScene extends Phaser.Scene {
       player.collectPowerUp(powerUp.puType);
       this.registry.set('shots', player.shotsLeft);
       this.registry.set('powerUpType', powerUp.puType);
+      // +60 seconds bonus for picking up a condiment power-up
+      this._elapsed = Math.max(0, this._elapsed - 60000);
+      this._showTimerBonus();
     }
+  }
+
+  _showTimerBonus() {
+    const txt = this.add.text(
+      this._player.x, this._player.y - 55,
+      '+1:00 ⏱',
+      { fontSize: '22px', fill: '#00FFCC', stroke: '#000', strokeThickness: 4, fontFamily: 'Arial Black, Arial' }
+    ).setDepth(35).setOrigin(0.5);
+    this.tweens.add({
+      targets: txt,
+      y: txt.y - 50,
+      alpha: 0,
+      duration: 1200,
+      onComplete: () => txt.destroy(),
+    });
   }
 
   // ── Score / Health ────────────────────────────────────────
