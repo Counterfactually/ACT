@@ -1,12 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
-  base: '/ACT/',
+  // /ACT/ base only needed for GitHub Pages production builds.
+  // Dev server uses plain / so HMR and asset paths work normally.
+  base: command === 'build' ? '/ACT/' : '/',
   server: {
     port: 5174,
-    strictPort: true,   // fail clearly if port is already taken
+    strictPort: true,
     host: true,
   },
-})
+}))
