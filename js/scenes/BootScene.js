@@ -230,6 +230,17 @@ class BootScene extends Phaser.Scene {
     this._drawPowerUp('relish_pu', 0x55CC55, 0xAAFF88);
   }
 
+  // Draw a star polygon using fillPoints (fillStar is not a Phaser API method)
+  _fillStar(g, cx, cy, outerR, innerR, numPoints) {
+    const pts = [];
+    for (let i = 0; i < numPoints * 2; i++) {
+      const r = i % 2 === 0 ? outerR : innerR;
+      const angle = (i * Math.PI / numPoints) - Math.PI / 2;
+      pts.push({ x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
+    }
+    g.fillPoints(pts, true);
+  }
+
   _drawPowerUp(key, color, glowColor) {
     const g = this.make.graphics({ x: 0, y: 0, add: false });
     // Glow ring
@@ -246,7 +257,7 @@ class BootScene extends Phaser.Scene {
     g.fillRoundedRect(11, 11, 5, 12, 2);
     // Star sparkle
     g.fillStyle(0xFFFFFF, 1);
-    g.fillStar(18, 4, 5, 4, 2, 0);
+    this._fillStar(g, 18, 4, 4, 2, 5);
     g.generateTexture(key, 36, 36);
     g.destroy();
   }
@@ -348,7 +359,7 @@ class BootScene extends Phaser.Scene {
   _makeStarParticle() {
     const g = this.make.graphics({ x: 0, y: 0, add: false });
     g.fillStyle(0xFFFF00, 1);
-    g.fillStar(8, 8, 5, 8, 4, 0);
+    this._fillStar(g, 8, 8, 8, 4, 5);
     g.generateTexture('star', 16, 16);
     g.destroy();
   }

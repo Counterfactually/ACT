@@ -140,16 +140,16 @@ class GameScene extends Phaser.Scene {
   }
 
   _buildGround(cfg) {
-    // Ground as a static physics body spanning the whole level
-    this._groundBody = this.physics.add.staticGroup();
-    const groundTile = this._groundBody.create(
+    // Invisible rectangle with static physics — spans the full level width
+    const groundRect = this.add.rectangle(
       GAME.LEVEL_WIDTH / 2,
       GAME.GROUND_Y + GAME.GROUND_H / 2,
-      null
+      GAME.LEVEL_WIDTH,
+      GAME.GROUND_H,
+      0x000000, 0
     );
-    groundTile.setVisible(false);
-    groundTile.body.setSize(GAME.LEVEL_WIDTH, GAME.GROUND_H);
-    groundTile.refreshBody();
+    this.physics.add.existing(groundRect, true); // true = static
+    this._groundBody = groundRect;
 
     // Visual ground strip
     const groundVis = this.add.graphics().setDepth(3);
