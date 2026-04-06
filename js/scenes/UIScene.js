@@ -171,10 +171,12 @@ class UIScene extends Phaser.Scene {
   }
 
   shutdown() {
-    this.registry.events.off('changedata-health',   this._onHealthChange,   this);
-    this.registry.events.off('changedata-score',    this._onScoreChange,    this);
-    this.registry.events.off('changedata-timeLeft', this._onTimerChange,    this);
-    this.registry.events.off('changedata-shots',    this._onShotsChange,    this);
-    this.registry.events.off('changedata-powerUpType', this._onPowerUpType, this);
+    this.registry.events.off('changedata-health',      this._onHealthChange, this);
+    this.registry.events.off('changedata-score',       this._onScoreChange,  this);
+    this.registry.events.off('changedata-timeLeft',    this._onTimerChange,  this);
+    this.registry.events.off('changedata-shots',       this._onShotsChange,  this);
+    this.registry.events.off('changedata-powerUpType', this._onPowerUpType,  this);
+    // Ensure all interactive zones are fully removed from Phaser's input manager
+    this.input.removeAllListeners();
   }
 }

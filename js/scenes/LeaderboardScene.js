@@ -146,7 +146,7 @@ class LeaderboardScene extends Phaser.Scene {
 
   _makeButton(x, y, label, color, callback) {
     const w = 340, h = 66;
-    const bg = this.add.graphics();
+    const bg = this.add.graphics().setDepth(10);
     bg.fillStyle(color, 1);
     bg.fillRoundedRect(x - w / 2, y - h / 2, w, h, 16);
     bg.lineStyle(3, 0xffffff, 0.5);
@@ -156,11 +156,22 @@ class LeaderboardScene extends Phaser.Scene {
       fontSize: '22px', fill: '#ffffff',
       stroke: '#000', strokeThickness: 3,
       fontFamily: 'Arial Black, Arial',
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setDepth(11);
 
-    const zone = this.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
-    zone.on('pointerdown', callback);
-    zone.on('pointerover', () => this.tweens.add({ targets: txt, scaleX: 1.05, scaleY: 1.05, duration: 80 }));
-    zone.on('pointerout',  () => this.tweens.add({ targets: txt, scaleX: 1,    scaleY: 1,    duration: 80 }));
+    let pressed = false;
+    const zone = this.add.zone(x, y, w, h).setInteractive({ useHandCursor: true }).setDepth(12);
+    zone.on('pointerdown', () => {
+      if (pressed) return;
+      pressed = true;
+      bg.setAlpha(0.6);
+      txt.setScale(0.92, 0.92);
+      this.time.delayedCall(120, () => {
+        bg.setAlpha(1);
+        txt.setScale(1, 1);
+        this.time.delayedCall(30, callback);
+      });
+    });
+    zone.on('pointerover', () => { if (!pressed) bg.setAlpha(0.85); });
+    zone.on('pointerout',  () => { if (!pressed) bg.setAlpha(1); });
   }
 }

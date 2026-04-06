@@ -78,44 +78,64 @@ class WinScene extends Phaser.Scene {
     const btn1Y = heartsY + 70;
     const btn2Y = btn1Y + 76;
 
-    if (isLast) {
-      this._makeButton(GAME.WIDTH / 2, btn1Y, '🔄  PLAY AGAIN', 0x226622, () => {
-        this.scene.start('GameScene', { level: 1, score: 0 });
-      });
-      this._makeButton(GAME.WIDTH / 2, btn2Y, '🏆  VIEW SCORES', 0x884400, () => {
-        this.scene.start('LeaderboardScene', { score: this._totalScore, fromWin: true });
-      });
-    } else {
-      this._makeButton(GAME.WIDTH / 2, btn1Y, '▶  NEXT LEVEL', 0x226622, () => {
-        this.scene.start('GameScene', {
+    const goNext = isLast
+      ? () => this.scene.start('GameScene', { level: 1, score: 0 })
+      : () => this.scene.start('GameScene', {
           level: this._level + 1,
           score: this._totalScore,
           health: this._health,
         });
-      });
-      this._makeButton(GAME.WIDTH / 2, btn2Y, '🏠  MAIN MENU', 0x664400, () => {
-        this.scene.start('MenuScene');
-      });
+
+    const goSecond = isLast
+      ? () => this.scene.start('LeaderboardScene', { score: this._totalScore, fromWin: true })
+      : () => this.scene.start('MenuScene');
+
+    if (isLast) {
+      this._makeButton(GAME.WIDTH / 2, btn1Y, '🔄  PLAY AGAIN', 0x226622, goNext);
+      this._makeButton(GAME.WIDTH / 2, btn2Y, '🏆  VIEW SCORES', 0x884400, goSecond);
+    } else {
+      this._makeButton(GAME.WIDTH / 2, btn1Y, '▶  NEXT LEVEL', 0x226622, goNext);
+      this._makeButton(GAME.WIDTH / 2, btn2Y, '🏠  MAIN MENU', 0x664400, goSecond);
     }
+
+    // Keyboard shortcuts (also helps on iPad with external keyboard)
+    this.input.keyboard.once('keydown-ENTER', goNext);
+    this.input.keyboard.once('keydown-SPACE', goNext);
+    this.input.keyboard.once('keydown-M',     goSecond);
   }
 
   _makeButton(x, y, label, color, callback) {
     const w = 340, h = 66;
-    const bg = this.add.graphics();
-    bg.fillStyle(color, 1);
-    bg.fillRoundedRect(x - w / 2, y - h / 2, w, h, 16);
-    bg.lineStyle(3, 0xffffff, 0.55);
-    bg.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 16);
+    const bg = this.add.graphics().setDepth(10);
+    const draw = (c) => {
+      bg.clear();
+      bg.fillStyle(c, 1);
+      bg.fillRoundedRect(x - w / 2, y - h / 2, w, h, 16);
+      bg.lineStyle(3, 0xffffff, 0.65);
+      bg.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 16);
+    };
+    draw(color);
 
     const txt = this.add.text(x, y, label, {
       fontSize: '22px', fill: '#ffffff',
       stroke: '#000', strokeThickness: 4,
       fontFamily: 'Arial Black, Arial',
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setDepth(11);
 
-    const zone = this.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
-    zone.on('pointerdown', callback);
-    zone.on('pointerover', () => this.tweens.add({ targets: txt, scaleX: 1.05, scaleY: 1.05, duration: 80 }));
-    zone.on('pointerout',  () => this.tweens.add({ targets: txt, scaleX: 1,    scaleY: 1,    duration: 80 }));
+    let pressed = false;
+    const zone = this.add.zone(x, y, w, h).setInteractive({ useHandCursor: true }).setDepth(12);
+    zone.on('pointerdown', () => {
+      if (pressed) return;
+      pressed = true;
+      draw(0xffffff);              // flash white on tap
+      txt.setScale(0.92, 0.92);
+      this.time.delayedCall(120, () => {
+        draw(color);
+        txt.setScale(1, 1);
+        this.time.delayedCall(30, callback);   // defer scene transition
+      });
+    });
+    zone.on('pointerover', () => { if (!pressed) { bg.setAlpha(0.85); } });
+    zone.on('pointerout',  () => { if (!pressed) { bg.setAlpha(1); } });
   }
 }
